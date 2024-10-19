@@ -22,16 +22,17 @@ namespace OpenCvSharpVideoSample
         {
             if (isCameraRunning)
             {
-                capture.Release();
                 isCameraRunning = false;
+                loadVideoButton.Text = "start";
             }
             else
             {
-                capture = new VideoCapture(0);
-                capture.Open(0);
+                capture = new VideoCapture();
+                capture.Open(1);
                 isCameraRunning = true;
                 cameraThread = new Thread(new ThreadStart(CaptureCamera));
                 cameraThread.Start();
+                loadVideoButton.Text = "stop";
             }
 
         }
@@ -42,8 +43,12 @@ namespace OpenCvSharpVideoSample
 
             while (isCameraRunning)
             {
-                frame = new Mat(100, 100, MatType.CV_8UC1);
                 capture.Read(frame);
+
+                Cv2.CvtColor(frame, frame, ColorConversionCodes.BGR2GRAY);
+
+                Cv2.Laplacian(frame, frame, MatType.CV_8UC1);
+
                 if (!frame.Empty())
                 {
                     videoPictureBox.Invoke(new Action(() =>
